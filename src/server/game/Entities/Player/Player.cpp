@@ -23999,19 +23999,15 @@ void Player::LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo)
             break;
         case SKILL_RANGE_RANK:
         {
-            uint16 rank = 1;
-            if (getClass() == CLASS_DEATH_KNIGHT && skillId == SKILL_FIRST_AID)
-                rank = 4;
-
             SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
-            uint16 maxValue = tier->Value[std::max<int32>(rank - 1, 0)];
+            uint16 maxValue = tier->Value[0];
             uint16 skillValue = 1;
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
                 skillValue = maxValue;
             else if (getClass() == CLASS_DEATH_KNIGHT)
                 skillValue = std::min(std::max(uint16(1), uint16((getLevel() - 1) * 5)), maxValue);
 
-            SetSkill(skillId, rank, skillValue, maxValue);
+            SetSkill(skillId, 1, skillValue, maxValue);
             break;
         }
         default:
@@ -27517,6 +27513,7 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
     displayPlayerChoice.Responses.resize(playerChoice->Responses.size());
     displayPlayerChoice.CloseChoiceFrame = false;
     displayPlayerChoice.HideWarboardHeader = playerChoice->HideWarboardHeader;
+    displayPlayerChoice.KeepOpenAfterChoice = playerChoice->KeepOpenAfterChoice;
 
     for (std::size_t i = 0; i < playerChoice->Responses.size(); ++i)
     {
@@ -27524,6 +27521,9 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
         WorldPackets::Quest::PlayerChoiceResponse& playerChoiceResponse = displayPlayerChoice.Responses[i];
         playerChoiceResponse.ResponseID = playerChoiceResponseTemplate.ResponseId;
         playerChoiceResponse.ChoiceArtFileID = playerChoiceResponseTemplate.ChoiceArtFileId;
+        playerChoiceResponse.Flags = playerChoiceResponseTemplate.Flags;
+        playerChoiceResponse.WidgetSetID = playerChoiceResponseTemplate.WidgetSetID;
+        playerChoiceResponse.GroupID = playerChoiceResponseTemplate.GroupID;
         playerChoiceResponse.Answer = playerChoiceResponseTemplate.Answer;
         playerChoiceResponse.Header = playerChoiceResponseTemplate.Header;
         playerChoiceResponse.Description = playerChoiceResponseTemplate.Description;

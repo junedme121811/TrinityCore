@@ -733,7 +733,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
             LoginDatabase.CommitTransaction(trans);
 
-            SendCharCreate(CHAR_CREATE_SUCCESS);
+            SendCharCreate(CHAR_CREATE_SUCCESS, newChar.GetGUID());
 
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().ToString().c_str());
             sScriptMgr->OnPlayerCreate(&newChar);
@@ -2476,10 +2476,11 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
     }));
 }
 
-void WorldSession::SendCharCreate(ResponseCodes result)
+void WorldSession::SendCharCreate(ResponseCodes result, ObjectGuid const& guid /*= ObjectGuid::Empty*/)
 {
     WorldPackets::Character::CreateChar response;
     response.Code = result;
+    response.Guid = guid;
 
     SendPacket(response.Write());
 }
